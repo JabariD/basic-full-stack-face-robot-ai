@@ -4,6 +4,9 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
+/* Imported Libraries */
+import 'tachyons';
+
 ReactDOM.render(
   <React.StrictMode>
     <App />
