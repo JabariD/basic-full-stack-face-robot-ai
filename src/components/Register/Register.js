@@ -26,7 +26,7 @@ class Register extends React.Component {
     onSubmitRegister = () => {
         axios({
             method: 'post',
-            url: 'http://localhost:3000/register',
+            url: 'https://nameless-dusk-62223.herokuapp.com/register',
             data: {
                 email: this.state.email,
                 password: this.state.password,
@@ -35,7 +35,7 @@ class Register extends React.Component {
           })
           .then(user => {
               this.props.loadUser(user.data);
-              if (user) this.props.onRouteChange('home');
+              if (user.data.id) this.props.onRouteChange('home');
           });
     }
 

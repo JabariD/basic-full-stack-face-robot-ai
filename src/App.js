@@ -15,10 +15,6 @@ import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 /** Particles */
 import Particles from 'react-particles-js';
 
-/** Clarifai */
-import Clarifai from 'clarifai';
-const app = new Clarifai.App( {apiKey: '994cdf52471d4800b5fbedf89c406ce3'} );
-
 /* The first element: Particles, is for the background. */
 const particlesOptions = {
   particles: {
@@ -35,7 +31,25 @@ const particlesOptions = {
 
 
 
-
+const initialState = {
+  // what the user will input
+  input: "",
+  // should be displayed when we click on submit
+  imageURL: "",
+  // Will contain the values that we receive once we get response.
+  box: {},
+  // When app first starts, it will ask the user to sign in.
+  route: 'signin',
+  // Determine if user is signed in
+  isSignedIn: false,
+  user: {
+    id: -1,
+    name: "",
+    email: "",
+    entries: 0,
+    joined: ""
+  },
+};
 export default class App extends Component {
   constructor() {
     super();
@@ -61,14 +75,11 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    fetch('http://localhost:3000/')
-      .then(response => response.json())
-      .then(data => console.log(data));
+    
   }
 
   // Load user to state
   loadUser = (data) => {
-    console.log("IN LOAD USER " + data.name);
     this.setState({user: {
       id: data.id,
       name: data.name,
@@ -112,12 +123,17 @@ export default class App extends Component {
     // because when we called Clarifai with our the predict function, React wasn't finished updating the state. 
     //* https://reactjs.org/docs/react-component.html#setstate */
     
-    app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+    fetch('https://nameless-dusk-62223.herokuapp.com/imageurl', {
+                method: "post",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({input:this.state.input})
+              })
+              .then(response => response.json())
               .then( response => {
                 if (response) {
                   axios({
                     method: 'PUT',
-                    url: 'http://localhost:3000/image',
+                    url: 'https://nameless-dusk-62223.herokuapp.com/image',
                     data: {
                         id: this.state.user.id,
                     }
@@ -129,7 +145,8 @@ export default class App extends Component {
                         entries: response.data
                       }
                     })
-                  });
+                  })
+                  .catch(error => console.log(error));
                 }
                 this.displayFaceBox(this.calculateFaceLocation(response));
                 
@@ -140,7 +157,7 @@ export default class App extends Component {
 
   onRouteChange = (route) => {
     if (route === 'signout') {
-      this.setState({isSignedIn: false})
+      this.setState(initialState);
     } else if (route === 'home') {
       this.setState({isSignedIn: true})
     }
@@ -148,11 +165,11 @@ export default class App extends Component {
   }
 
   render() {
-    const { isSignedin, box, imageURL, route, user } = this.state;
+    const { isSignedIn, box, imageURL, route, user } = this.state;
     return (
       <div className="App">
         <Particles className="particles" params={particlesOptions} />
-        <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedin} />
+        <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn} />
         { route === 'home' ? 
           <>
             <Logo />

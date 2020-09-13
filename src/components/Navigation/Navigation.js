@@ -1,10 +1,5 @@
 import React from 'react'
 
-/* Navigation Links will be here! 
-
-*/
-
-
 export default function Navigation({ onRouteChange, isSignedIn }) {
     if (isSignedIn) {
         return (
